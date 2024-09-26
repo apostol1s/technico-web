@@ -197,7 +197,7 @@ public class OwnerServiceImpl implements OwnerService {
 //        save(owner);
 //    }   
     /**
-     * Permanently deletes an owner by VAT
+     * Permanently deletes an owner by ID
      *
      * @param id
      * @return true if the owner was deleted, false otherwise
@@ -213,7 +213,7 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     /**
-     * Soft deletes an owner by VAT, marking the owner as deleted
+     * Soft deletes an owner by ID, marking the owner as deleted
      *
      * @param id
      * @return true if the owner was marked as deleted, false otherwise
@@ -235,25 +235,25 @@ public class OwnerServiceImpl implements OwnerService {
     /**
      * Verifies the owner's credentials
      *
-     * @param username
+     * @param email
      * @param password
      * @return an Optional containing the VAT of the verified owner
      * @throws CustomException if the username or password is null/blank or
      * invalid
      */
-//    @Override
-//    public Optional<String> verifyOwner(String username, String password) throws CustomException {
-//        if (username == null || username.isBlank()) {
-//            throw new CustomException("Username cannot be null or blank.");
-//        }
-//        if (password == null || password.isBlank()) {
-//            throw new CustomException("Password cannot be null or blank.");
-//        }
-//
-//        Owner owner = ownerRepository.findByUsernameAndPassword(username, password)
-//                .orElseThrow(() -> new CustomException("Invalid username or password."));
-//        return Optional.of(owner.getVat());
-//    }
+    @Override
+    public Optional<Owner> verifyOwner(String email, String password) throws CustomException {
+        if (email == null || email.isBlank()) {
+            throw new CustomException("Email cannot be null or blank.");
+        }
+        if (password == null || password.isBlank()) {
+            throw new CustomException("Password cannot be null or blank.");
+        }
+
+        Owner owner = ownerRepository.findByUsernameAndPassword(email, password)
+                .orElseThrow(() -> new CustomException("Invalid username or password."));
+        return Optional.of(owner);
+    }
     /**
      * Validates the VAT.
      *
@@ -387,8 +387,8 @@ public class OwnerServiceImpl implements OwnerService {
      * @return the Owner
      * @throws CustomException if the Owner with the given VAT is not found
      */
-    public Owner getOwnerByVat(String vat) throws CustomException {
-        return ownerRepository.findByVat(vat)
-                .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
-    }
+//    public Owner getOwnerByVat(String vat) throws CustomException {
+//        return ownerRepository.findByVat(vat)
+//                .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
+//    }
 }

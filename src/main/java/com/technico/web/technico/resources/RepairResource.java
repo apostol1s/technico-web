@@ -4,10 +4,7 @@ import com.technico.web.technico.dtos.CreateRepairDto;
 import com.technico.web.technico.dtos.UpdateRepairAdminDto;
 import com.technico.web.technico.dtos.UpdateRepairOwnerDto;
 import com.technico.web.technico.exceptions.CustomException;
-import com.technico.web.technico.models.Property;
 import com.technico.web.technico.models.Repair;
-import com.technico.web.technico.models.RepairStatus;
-import com.technico.web.technico.models.RepairType;
 import com.technico.web.technico.services.RepairService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -20,7 +17,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,6 +31,12 @@ public class RepairResource {
     @Inject
     private RepairService repairService;
 
+    /**
+     * Creates a new repair using the provided property data.
+     *
+     * @param repair A DTO containing property data.
+     * @return The newly created repair, or null if an error occurs.
+     */
     @Path("create")
     @POST
     @Consumes("application/json")
@@ -52,9 +54,16 @@ public class RepairResource {
         } catch (CustomException e) {
             log.debug("Error whlie saving new property " + e.getMessage());
         }
-        return new Repair();
+        return null;
     }
 
+    /**
+     * Admin updates the details of an existing repaur.
+     *
+     * @param id The ID of the repair to update.
+     * @param repair A DTO containing the updated property details.
+     * @return The updated repair, or a null if an error occurs.
+     */
     @Path("updateAdmin/{id}")
     @PUT
     @Consumes("application/json")
@@ -77,6 +86,13 @@ public class RepairResource {
         return new Repair();
     }
 
+    /**
+     * Owner updates the details of an existing repaur.
+     *
+     * @param id The ID of the repair to update.
+     * @param repair A DTO containing the updated property details.
+     * @return The updated repair, or a null if an error occurs.
+     */
     @Path("updateOwner/{id}")
     @PUT
     @Consumes("application/json")
@@ -95,6 +111,13 @@ public class RepairResource {
         return new Repair();
     }
 
+    /**
+     * Finds repairs by owner's ID.
+     *
+     * @param id The unique identifier of the owner.
+     * @return The repairs of the specified id.
+     * @throws CustomException If no property is found with the given ID.
+     */
     @Path("findByOwnerID/{id}")
     @GET
     @Produces("application/json")
@@ -102,6 +125,13 @@ public class RepairResource {
         return repairService.findRepairsByOwner(id);
     }
 
+    /**
+     * Finds a repair by its unique ID.
+     *
+     * @param id The unique identifier of the repair.
+     * @return The repair with the specified ID.
+     * @throws CustomException If no repair is found with the given ID.
+     */
     @Path("findByID/{id}")
     @GET
     @Produces("application/json")
@@ -109,29 +139,58 @@ public class RepairResource {
         return repairService.findRepairById(id).get();
     }
 
-    @Path("findByRangeDate")
+    /**
+     * Retrieves all repairs scheduled for a specific date.
+     *
+     * @param repairDate The date to filter repairs by, formatted as
+     * "yyyy-MM-dd'T'HH:mm:ss".
+     * @return A list of Repair objects scheduled for the given date.
+     * @throws ParseException if the date format is invalid.
+     */
+    @Path("findByDate")
     @GET
     @Produces("application/json")
-    public List<Repair> findRepairByDateRange(@QueryParam("repairDate") String repairDate) throws ParseException {
+    public List<Repair> findRepairByDate(@QueryParam("repairDate") String repairDate) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Date date = sdf.parse(repairDate);
-        return repairService.findRepairsByRangeDates(date);
+        return repairService.findRepairsByDate(date);
     }
-    
+
+    /**
+     * Retrieves all repairs in the system.
+     *
+     * @return A list of all Repair objects.
+     * @throws CustomException if an error occurs while retrieving the records.
+     */
     @Path("findAll")
     @GET
     @Produces("application/json")
     public List<Repair> allRepairs() throws CustomException {
         return repairService.getRepairs();
     }
-    
+
+    /**
+     * Soft deletes a repair record by marking it as deleted.
+     *
+     * @param id The ID of the repair to soft delete.
+     * @return true if the repair was successfully soft deleted, false
+     * otherwise.
+     * @throws CustomException if no repair is found with the given ID or an
+     * error occurs.
+     */
     @Path("softDelete/{id}")
     @PUT
     @Produces("application/json")
     public boolean softDeleteRepair(@PathParam("id") Long id) throws CustomException {
         return repairService.deleteSafely(id);
     }
-    
+
+    /**
+     * Permanently deletes a repair
+     *
+     * @param id The ID of the repair to delete.
+     * @return true if the repair was successfully deleted, false otherwise.
+     */
     @Path("hardDelete/{id}")
     @DELETE
     @Produces("application/json")

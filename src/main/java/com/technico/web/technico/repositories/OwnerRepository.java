@@ -68,22 +68,22 @@ public class OwnerRepository implements Repository<Owner, Long> {
 //        return query.getResultStream().findFirst();
 //    }
 
-//    /**
-//     * Finds an owner by their username and password.
-//     *
-//     * @param username the username of the owner.
-//     * @param password the password of the owner.
-//     * @return an Optional containing the found owner.
-//     */
-//    public Optional<Owner> findByUsernameAndPassword(String username, String password) {
-//        TypedQuery<Owner> query = entityManager.createQuery(
-//                "FROM Owner WHERE username = :username AND password = :password AND isDeleted = false",
-//                Owner.class
-//        );
-//        query.setParameter("username", username);
-//        query.setParameter("password", password);
-//        return query.getResultStream().findFirst();
-//    }
+    /**
+     * Finds an owner by their username and password.
+     *
+     * @param email the email of the owner.
+     * @param password the password of the owner.
+     * @return an Optional containing the found owner.
+     */
+    public Optional<Owner> findByUsernameAndPassword(String email, String password) {
+        TypedQuery<Owner> query = entityManager.createQuery(
+                "FROM Owner WHERE email = :email AND password = :password AND isDeleted = false",
+                Owner.class
+        );
+        query.setParameter("email", email);
+        query.setParameter("password", password);
+        return query.getResultStream().findFirst();
+    }
 
     /**
      * Permanently deletes an owner by their VAT number.
@@ -91,17 +91,17 @@ public class OwnerRepository implements Repository<Owner, Long> {
      * @param vat the VAT number of the owner to delete
      * @return true if the owner was deleted successfully, false if not found
      */
-    @Transactional
-    public boolean deletePermanentlyByVat(String vat) {
-        Optional<Owner> optionalOwner = findByVat(vat);
-
-        if (optionalOwner.isPresent()) {
-            Owner owner = optionalOwner.get();
-            entityManager.remove(owner);
-            return true;
-        }
-        return false;
-    }
+//    @Transactional
+//    public boolean deletePermanentlyByVat(String vat) {
+//        Optional<Owner> optionalOwner = findByVat(vat);
+//
+//        if (optionalOwner.isPresent()) {
+//            Owner owner = optionalOwner.get();
+//            entityManager.remove(owner);
+//            return true;
+//        }
+//        return false;
+//    }
 
     /**
      * Finds an owner by their ID.

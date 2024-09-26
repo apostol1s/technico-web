@@ -8,6 +8,7 @@ import java.util.List;
 public interface PropertyService {
     Property createProperty(String e9, String address, int year, PropertyType propertyType, String vat) throws CustomException;
     Property updateProperty(Long id, String propertyAddress, int constructionYear, PropertyType propertyType) throws CustomException;
+//    Property updatePropertyE9(Property property, String e9) throws CustomException;
 //    Property updatePropertyAddress(Property property, String address) throws CustomException;
 //    Property updatePropertyConstructionYear(Property property, int year) throws CustomException;
 //    Property updatePropertyType(Property property, PropertyType propertyType) throws CustomException;

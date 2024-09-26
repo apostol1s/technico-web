@@ -74,7 +74,7 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     /**
-     * Updates the E9 identifier of an existing property.
+     * Updates an existing property.
      *
      * @param id
      * @param propertyAddress
@@ -105,6 +105,31 @@ public class PropertyServiceImpl implements PropertyService {
             throw new CustomException("Failed to update property with ID " + id);
         }
     }
+    
+    /**
+     * Updates the E9 identifier of an existing property.
+     *
+     * @param property The property object to be updated.
+     * @param e9 The new E9 identifier to set for the property.
+     * @return The updated Property object.
+     * @throws CustomException If the if the update fails.
+     */
+//    @Override
+//    public Property updatePropertyE9(Property property, String e9) throws CustomException {
+//        if (property.isDeleted()) {
+//            throw new CustomException("Cannot update a deleted property.");
+//        }
+//
+//        validateE9(e9);
+//        property.setE9(e9);
+//
+//        try {
+//            Optional<Property> savedProperty = propertyRepository.save(property);
+//            return savedProperty.get();
+//        } catch (Exception e) {
+//            throw new CustomException("Failed to update property with E9 " + e9);
+//        }
+//    }
 
     /**
      * Updates the address of an existing property.

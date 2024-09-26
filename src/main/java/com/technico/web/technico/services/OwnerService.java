@@ -34,7 +34,7 @@ public interface OwnerService {
     boolean deleteOwnerSafely(Long id);
 
     // Verify Owner
-//    Optional<String> verifyOwner(String username, String password) throws CustomException;
+    Optional<Owner> verifyOwner(String email, String password) throws CustomException;
 
     // Validations
     void validateVat(String vat) throws CustomException;

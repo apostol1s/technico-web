@@ -51,7 +51,7 @@ public class OwnerResource {
         } catch (CustomException e) {
             log.debug("Error whlie saving new owner " + e.getMessage());
         }
-        return new Owner();
+        return null;
     }
 
     /**
@@ -128,7 +128,7 @@ public class OwnerResource {
         } catch (CustomException e) {
             log.debug("Error whlie updating owner " + e.getMessage());
         }
-        return new Owner();
+        return null;
     }
 
     /**
@@ -160,5 +160,26 @@ public class OwnerResource {
             log.debug("Error in hard deleting" + e.getMessage());
         }
         return false;
+    }
+    
+    /**
+     * Endpoint to authenticate an owner based on email and password.
+     * 
+     * @param email owner's email
+     * @param password owner's password
+     * @return the verified owner.
+     */
+    @Path("login/{email}/{password}")
+    @POST
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Owner login(@PathParam("email") String email,
+            @PathParam("password") String password) {
+        try {
+            return ownerService.verifyOwner(email, password).get();
+        } catch (CustomException e) {
+            log.debug("Error in hard deleting" + e.getMessage());
+        }
+        return null;
     }
 }

@@ -15,20 +15,9 @@ import java.util.List;
 @RequestScoped
 public class OwnerServiceImpl implements OwnerService {
 
+    @Inject
     private OwnerRepository ownerRepository;
 
-    /**
-     * Constructs a new OwnerService with the given OwnerRepository
-     *
-     * @param ownerRepository
-     */
-    @Inject
-    public OwnerServiceImpl(OwnerRepository ownerRepository) {
-        this.ownerRepository = ownerRepository;
-    }
-
-    public OwnerServiceImpl() {
-    }
 
     /**
      * Creates a new owner with the given details

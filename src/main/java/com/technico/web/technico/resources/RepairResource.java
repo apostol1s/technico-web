@@ -1,9 +1,12 @@
 package com.technico.web.technico.resources;
 
+import com.technico.web.technico.dtos.AllRepairsDto;
 import com.technico.web.technico.dtos.CreateRepairDto;
 import com.technico.web.technico.dtos.UpdateRepairAdminDto;
 import com.technico.web.technico.dtos.UpdateRepairOwnerDto;
 import com.technico.web.technico.exceptions.CustomException;
+import com.technico.web.technico.models.Owner;
+import com.technico.web.technico.models.Property;
 import com.technico.web.technico.models.Repair;
 import com.technico.web.technico.services.RepairService;
 import jakarta.enterprise.context.RequestScoped;
@@ -21,6 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -165,8 +169,31 @@ public class RepairResource {
     @Path("findAll")
     @GET
     @Produces("application/json")
-    public List<Repair> allRepairs() throws CustomException {
-        return repairService.getRepairs();
+    public List<AllRepairsDto> allRepairs() throws CustomException {
+        List<Repair> repairs = repairService.getRepairs();
+        List<AllRepairsDto> allRepairsDto = repairs.stream().map(repair -> {
+            Property property = repair.getProperty();
+            Owner owner = property.getOwner();
+            return new AllRepairsDto(
+                    repair.getId(),
+                    owner.getVat(),
+                    property.getE9(),
+                    repair.getRepairType(),
+                    repair.getShortDescription(),
+                    repair.getSubmissionDate(),
+                    repair.getDescription(),
+                    repair.getScheduledStartDate(),
+                    repair.getScheduledEndDate(),
+                    repair.getProposedCost(),
+                    repair.getAcceptanceStatus(),
+                    repair.getRepairStatus(),
+                    repair.getRepairAddress(),
+                    repair.getActualStartDate(),
+                    repair.getActualEndDate(),
+                    repair.isDeleted()
+            );
+        }).collect(Collectors.toList());
+        return allRepairsDto;
     }
 
     /**

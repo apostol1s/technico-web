@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AllRepairsDto {
+public class RepairDto {
 
     private Long id;
     private String vat;
@@ -34,5 +34,5 @@ public class AllRepairsDto {
     private Date actualStartDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date actualEndDate;
-    private Boolean deleted;
+    private Boolean isDeleted;
 }

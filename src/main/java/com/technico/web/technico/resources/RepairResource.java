@@ -1,9 +1,6 @@
 package com.technico.web.technico.resources;
 
-import com.technico.web.technico.dtos.AllRepairsDto;
-import com.technico.web.technico.dtos.CreateRepairDto;
-import com.technico.web.technico.dtos.UpdateRepairAdminDto;
-import com.technico.web.technico.dtos.UpdateRepairOwnerDto;
+import com.technico.web.technico.dtos.RepairDto;
 import com.technico.web.technico.exceptions.CustomException;
 import com.technico.web.technico.models.Owner;
 import com.technico.web.technico.models.Property;
@@ -39,21 +36,21 @@ public class RepairResource {
      * Creates a new repair using the provided property data.
      *
      * @param repair A DTO containing property data.
-     * @return The newly created repair, or null if an error occurs.
+     * @return The newly created repairDto, or null if an error occurs.
      */
     @Path("create")
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Repair saveRepair(CreateRepairDto repair) {
+    public RepairDto saveRepair(RepairDto repair) {
         try {
             return repairService.createRepair(
+                    repair.getE9(),
                     repair.getRepairType(),
                     repair.getDescription(),
                     repair.getScheduledStartDate(),
                     repair.getScheduledEndDate(),
-                    repair.getProposedCost(),
-                    repair.getPropertyId()
+                    repair.getProposedCost()
             );
         } catch (CustomException e) {
             log.debug("Error whlie saving new property " + e.getMessage());
@@ -66,13 +63,13 @@ public class RepairResource {
      *
      * @param id The ID of the repair to update.
      * @param repair A DTO containing the updated property details.
-     * @return The updated repair, or a null if an error occurs.
+     * @return The updated repairDto, or a null if an error occurs.
      */
     @Path("updateAdmin/{id}")
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Repair updateRepairAdmin(@PathParam("id") Long id, UpdateRepairAdminDto repair) {
+    public RepairDto updateRepairAdmin(@PathParam("id") Long id, RepairDto repair) {
         try {
             return repairService.updateRepairAdmin(
                     id,
@@ -87,21 +84,21 @@ public class RepairResource {
         } catch (CustomException e) {
             log.debug("Error whlie updating repair " + e.getMessage());
         }
-        return new Repair();
+        return null;
     }
 
     /**
-     * Owner updates the details of an existing repaur.
+     * Owner updates the details of an existing repair.
      *
      * @param id The ID of the repair to update.
      * @param repair A DTO containing the updated property details.
-     * @return The updated repair, or a null if an error occurs.
+     * @return The updated repairDto, or a null if an error occurs.
      */
     @Path("updateOwner/{id}")
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Repair updateRepairOwner(@PathParam("id") Long id, UpdateRepairOwnerDto repair) {
+    public RepairDto updateRepairOwner(@PathParam("id") Long id, RepairDto repair) {
         try {
             return repairService.updateRepairOwner(
                     id,
@@ -112,35 +109,75 @@ public class RepairResource {
         } catch (CustomException e) {
             log.debug("Error whlie updating repair " + e.getMessage());
         }
-        return new Repair();
+        return null;
     }
 
     /**
      * Finds repairs by owner's ID.
      *
      * @param id The unique identifier of the owner.
-     * @return The repairs of the specified id.
+     * @return A list of repairsdto objects representing repairs of the
+     * specified owner's id.
      * @throws CustomException If no property is found with the given ID.
      */
     @Path("findByOwnerID/{id}")
     @GET
     @Produces("application/json")
-    public List<Repair> findRepairByOwnerID(@PathParam("id") Long id) throws CustomException {
-        return repairService.findRepairsByOwner(id);
+    public List<RepairDto> findRepairByOwnerID(@PathParam("id") Long id) throws CustomException {
+        List<Repair> repairs = repairService.findRepairsByOwner(id);
+        List<RepairDto> allRepairs = repairs.stream()
+                .map(repair -> new RepairDto(
+                repair.getId(),
+                repair.getProperty().getOwner().getVat(),
+                repair.getProperty().getE9(),
+                repair.getRepairType(),
+                repair.getShortDescription(),
+                repair.getSubmissionDate(),
+                repair.getDescription(),
+                repair.getScheduledStartDate(),
+                repair.getScheduledEndDate(),
+                repair.getProposedCost(),
+                repair.getAcceptanceStatus(),
+                repair.getRepairStatus(),
+                repair.getRepairAddress(),
+                repair.getActualStartDate(),
+                repair.getActualEndDate(),
+                repair.isDeleted()
+        ))
+                .collect(Collectors.toList());
+        return allRepairs;
     }
 
     /**
      * Finds a repair by its unique ID.
      *
      * @param id The unique identifier of the repair.
-     * @return The repair with the specified ID.
+     * @return A DTO representing the repair with the specified ID..
      * @throws CustomException If no repair is found with the given ID.
      */
     @Path("findByID/{id}")
     @GET
     @Produces("application/json")
-    public Repair findRepairByID(@PathParam("id") Long id) throws CustomException {
-        return repairService.findRepairById(id).get();
+    public RepairDto findRepairByID(@PathParam("id") Long id) throws CustomException {
+        Repair repair = repairService.findRepairById(id).get();
+        return new RepairDto(
+                repair.getId(),
+                repair.getProperty().getOwner().getVat(),
+                repair.getProperty().getE9(),
+                repair.getRepairType(),
+                repair.getShortDescription(),
+                repair.getSubmissionDate(),
+                repair.getDescription(),
+                repair.getScheduledStartDate(),
+                repair.getScheduledEndDate(),
+                repair.getProposedCost(),
+                repair.getAcceptanceStatus(),
+                repair.getRepairStatus(),
+                repair.getRepairAddress(),
+                repair.getActualStartDate(),
+                repair.getActualEndDate(),
+                repair.isDeleted()
+        );
     }
 
     /**
@@ -148,52 +185,72 @@ public class RepairResource {
      *
      * @param repairDate The date to filter repairs by, formatted as
      * "yyyy-MM-dd'T'HH:mm:ss".
-     * @return A list of Repair objects scheduled for the given date.
+     * @return A list of RepairDto representing all repairs scheduled for the
+     * given date.
      * @throws ParseException if the date format is invalid.
      */
     @Path("findByDate")
     @GET
     @Produces("application/json")
-    public List<Repair> findRepairByDate(@QueryParam("repairDate") String repairDate) throws ParseException {
+    public List<RepairDto> findRepairByDate(@QueryParam("repairDate") String repairDate) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Date date = sdf.parse(repairDate);
-        return repairService.findRepairsByDate(date);
+        List<Repair> repairs = repairService.findRepairsByDate(date);
+        List<RepairDto> repairsByDate = repairs.stream()
+                .map(repair -> new RepairDto(
+                repair.getId(),
+                repair.getProperty().getOwner().getVat(),
+                repair.getProperty().getE9(),
+                repair.getRepairType(),
+                repair.getShortDescription(),
+                repair.getSubmissionDate(),
+                repair.getDescription(),
+                repair.getScheduledStartDate(),
+                repair.getScheduledEndDate(),
+                repair.getProposedCost(),
+                repair.getAcceptanceStatus(),
+                repair.getRepairStatus(),
+                repair.getRepairAddress(),
+                repair.getActualStartDate(),
+                repair.getActualEndDate(),
+                repair.isDeleted()
+        ))
+                .collect(Collectors.toList());
+        return repairsByDate;
     }
 
     /**
      * Retrieves all repairs in the system.
      *
-     * @return A list of all Repair objects.
+     * @return A list of all RepairDto objects.
      * @throws CustomException if an error occurs while retrieving the records.
      */
     @Path("findAll")
     @GET
     @Produces("application/json")
-    public List<AllRepairsDto> allRepairs() throws CustomException {
+    public List<RepairDto> allRepairs() throws CustomException {
         List<Repair> repairs = repairService.getRepairs();
-        List<AllRepairsDto> allRepairsDto = repairs.stream().map(repair -> {
-            Property property = repair.getProperty();
-            Owner owner = property.getOwner();
-            return new AllRepairsDto(
-                    repair.getId(),
-                    owner.getVat(),
-                    property.getE9(),
-                    repair.getRepairType(),
-                    repair.getShortDescription(),
-                    repair.getSubmissionDate(),
-                    repair.getDescription(),
-                    repair.getScheduledStartDate(),
-                    repair.getScheduledEndDate(),
-                    repair.getProposedCost(),
-                    repair.getAcceptanceStatus(),
-                    repair.getRepairStatus(),
-                    repair.getRepairAddress(),
-                    repair.getActualStartDate(),
-                    repair.getActualEndDate(),
-                    repair.isDeleted()
-            );
-        }).collect(Collectors.toList());
-        return allRepairsDto;
+        List<RepairDto> allRepairs = repairs.stream()
+                .map(repair -> new RepairDto(
+                repair.getId(),
+                repair.getProperty().getOwner().getVat(),
+                repair.getProperty().getE9(),
+                repair.getRepairType(),
+                repair.getShortDescription(),
+                repair.getSubmissionDate(),
+                repair.getDescription(),
+                repair.getScheduledStartDate(),
+                repair.getScheduledEndDate(),
+                repair.getProposedCost(),
+                repair.getAcceptanceStatus(),
+                repair.getRepairStatus(),
+                repair.getRepairAddress(),
+                repair.getActualStartDate(),
+                repair.getActualEndDate(),
+                repair.isDeleted()
+        ))
+                .collect(Collectors.toList());
+        return allRepairs;
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.technico.web.technico.services;
 
+import com.technico.web.technico.dtos.RepairDto;
 import com.technico.web.technico.exceptions.CustomException;
 import com.technico.web.technico.models.Owner;
 import com.technico.web.technico.models.Property;
@@ -48,15 +49,15 @@ public class RepairServiceImpl implements RepairService {
      * @param scheduledStartDate
      * @param scheduledEndDate
      * @param proposedCost
-     * @param id
-     * @return The created Repair object with the specified details.
+     * @param e9
+     * @return The created Repair dto object with the specified details.
      * @throws CustomException If the provided property is deleted, or if any of
      * the validation fails for the repair type or description.
      */
     @Override
-    public Repair createRepair(RepairType repairType, String description,
-            Date scheduledStartDate, Date scheduledEndDate, BigDecimal proposedCost, Long id) throws CustomException {
-        Property property = propertyServiceInterface.findByID(id);
+    public RepairDto createRepair(String e9, RepairType repairType, String description,
+            Date scheduledStartDate, Date scheduledEndDate, BigDecimal proposedCost) throws CustomException {
+        Property property = propertyServiceInterface.findByE9(e9);
 
         if (property == null) {
             throw new CustomException("Property id not inserted.");
@@ -72,8 +73,25 @@ public class RepairServiceImpl implements RepairService {
         repair.setRepairStatus(RepairStatus.PENDING);
         repair.setProperty(property);
         repair.setProposedCost(proposedCost);
-        repairRepository.save(repair);
-        return repair;
+        Optional<Repair> savedRepair = repairRepository.save(repair);
+        return new RepairDto(
+                savedRepair.get().getId(),
+                savedRepair.get().getProperty().getOwner().getVat(),
+                savedRepair.get().getProperty().getE9(),
+                savedRepair.get().getRepairType(),
+                savedRepair.get().getShortDescription(),
+                savedRepair.get().getSubmissionDate(),
+                savedRepair.get().getDescription(),
+                savedRepair.get().getScheduledStartDate(),
+                savedRepair.get().getScheduledEndDate(),
+                savedRepair.get().getProposedCost(),
+                savedRepair.get().getAcceptanceStatus(),
+                savedRepair.get().getRepairStatus(),
+                savedRepair.get().getRepairAddress(),
+                savedRepair.get().getActualStartDate(),
+                savedRepair.get().getActualEndDate(),
+                savedRepair.get().isDeleted()
+        );
     }
 
     /**
@@ -87,13 +105,13 @@ public class RepairServiceImpl implements RepairService {
      * @param repairAddress
      * @param repairStatus
      * @param proposedCost
-     * @return The updated Repair object with the specified details.
+     * @return The updated Repair dto object with the specified details.
      * @throws CustomException If the provided repair is deleted, or if any of
      * the validation fails for the repair type or description.
      */
     @Override
     @Transactional
-    public Repair updateRepairAdmin(Long id, RepairType repairType, Date scheduledStartDate, Date scheduledEndDate,
+    public RepairDto updateRepairAdmin(Long id, RepairType repairType, Date scheduledStartDate, Date scheduledEndDate,
             String description, String repairAddress, RepairStatus repairStatus, BigDecimal proposedCost) throws CustomException {
         Repair repair = repairRepository.findById(id).get();
         if (repair.isDeleted()) {
@@ -110,7 +128,25 @@ public class RepairServiceImpl implements RepairService {
         repair.setRepairStatus(repairStatus);
         repair.setProposedCost(proposedCost);
 
-        return repairRepository.save(repair).get();
+        Optional<Repair> savedRepair = repairRepository.save(repair);
+        return new RepairDto(
+                savedRepair.get().getId(),
+                savedRepair.get().getProperty().getOwner().getVat(),
+                savedRepair.get().getProperty().getE9(),
+                savedRepair.get().getRepairType(),
+                savedRepair.get().getShortDescription(),
+                savedRepair.get().getSubmissionDate(),
+                savedRepair.get().getDescription(),
+                savedRepair.get().getScheduledStartDate(),
+                savedRepair.get().getScheduledEndDate(),
+                savedRepair.get().getProposedCost(),
+                savedRepair.get().getAcceptanceStatus(),
+                savedRepair.get().getRepairStatus(),
+                savedRepair.get().getRepairAddress(),
+                savedRepair.get().getActualStartDate(),
+                savedRepair.get().getActualEndDate(),
+                savedRepair.get().isDeleted()
+        );
     }
 
     /**
@@ -122,13 +158,13 @@ public class RepairServiceImpl implements RepairService {
      * @param repairType
      * @param description
      * @param repairAddress
-     * @return The updated Repair object with the specified details.
+     * @return The updated Repair dto object with the specified details.
      * @throws CustomException If the provided repair is deleted, or if any of
      * the validation fails for the repair type or description.
      */
     @Override
     @Transactional
-    public Repair updateRepairOwner(Long id, RepairType repairType, String description, String repairAddress) throws CustomException {
+    public RepairDto updateRepairOwner(Long id, RepairType repairType, String description, String repairAddress) throws CustomException {
         Repair repair = repairRepository.findById(id).get();
         if (repair.isDeleted()) {
             throw new CustomException("Cannot update a deleted repair.");
@@ -140,7 +176,25 @@ public class RepairServiceImpl implements RepairService {
         repair.setDescription(description);
         repair.setRepairAddress(repairAddress);
 
-        return repairRepository.save(repair).get();
+        Optional<Repair> savedRepair = repairRepository.save(repair);
+        return new RepairDto(
+                savedRepair.get().getId(),
+                savedRepair.get().getProperty().getOwner().getVat(),
+                savedRepair.get().getProperty().getE9(),
+                savedRepair.get().getRepairType(),
+                savedRepair.get().getShortDescription(),
+                savedRepair.get().getSubmissionDate(),
+                savedRepair.get().getDescription(),
+                savedRepair.get().getScheduledStartDate(),
+                savedRepair.get().getScheduledEndDate(),
+                savedRepair.get().getProposedCost(),
+                savedRepair.get().getAcceptanceStatus(),
+                savedRepair.get().getRepairStatus(),
+                savedRepair.get().getRepairAddress(),
+                savedRepair.get().getActualStartDate(),
+                savedRepair.get().getActualEndDate(),
+                savedRepair.get().isDeleted()
+        );
     }
 
     /**
@@ -451,7 +505,7 @@ public class RepairServiceImpl implements RepairService {
 
     /**
      * Permanently deletes a repair by its ID.
-     * 
+     *
      * @param id
      * @return true if the repair was successfully deleted, false otherwise.
      */
@@ -498,7 +552,6 @@ public class RepairServiceImpl implements RepairService {
 //            return repairs;
 //        }
 //    }
-
     /**
      * Validates the description of a repair. The description must not be null,
      * blank, or exceed 400 characters.

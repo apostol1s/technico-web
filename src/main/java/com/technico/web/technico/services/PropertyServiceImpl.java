@@ -1,5 +1,6 @@
 package com.technico.web.technico.services;
 
+import com.technico.web.technico.dtos.PropertyDto;
 import com.technico.web.technico.exceptions.CustomException;
 import com.technico.web.technico.models.Owner;
 import com.technico.web.technico.models.Property;
@@ -37,12 +38,12 @@ public class PropertyServiceImpl implements PropertyService {
      * @param year The construction year of the property.
      * @param propertyType The type of the property.
      * @param vat The VAT of the owner of the property.
-     * @return The created Property object.
+     * @return The created Property dto object.
      * @throws CustomException If vat is not valid or if the property cannot be
      * saved.
      */
     @Override
-    public Property createProperty(String e9, String address, int year, PropertyType propertyType, String vat) throws CustomException {
+    public PropertyDto createProperty(String e9, String address, int year, PropertyType propertyType, String vat) throws CustomException {
         Optional<Owner> searchOwner = ownerServiceInterface.searchOwnerByVat(vat);
         if (searchOwner.isEmpty()) {
             throw new CustomException("Not valid Vat");
@@ -67,7 +68,15 @@ public class PropertyServiceImpl implements PropertyService {
 
         try {
             Optional<Property> savedProperty = propertyRepository.save(property);
-            return savedProperty.get();
+            return new PropertyDto(
+                    savedProperty.get().getId(),
+                    savedProperty.get().getE9(),
+                    savedProperty.get().getPropertyAddress(),
+                    savedProperty.get().getConstructionYear(),
+                    savedProperty.get().getPropertyType(),
+                    savedProperty.get().getOwner().getVat(),
+                    savedProperty.get().isDeleted()
+            );
         } catch (Exception e) {
             throw new CustomException("Failed to create property");
         }
@@ -80,14 +89,14 @@ public class PropertyServiceImpl implements PropertyService {
      * @param propertyAddress
      * @param constructionYear
      * @param propertyType
-     * @return The updated Property object.
+     * @return The updated Property dto object.
      * @throws CustomException if the update fails.
      */
     @Override
     @Transactional
-    public Property updateProperty(Long id, String propertyAddress, int constructionYear, PropertyType propertyType) throws CustomException {
+    public PropertyDto updateProperty(Long id, String propertyAddress, int constructionYear, PropertyType propertyType) throws CustomException {
         Property property = findByID(id);
-        
+
         if (property.isDeleted()) {
             throw new CustomException("Cannot update a deleted property.");
         }
@@ -100,12 +109,20 @@ public class PropertyServiceImpl implements PropertyService {
 
         try {
             Optional<Property> savedProperty = propertyRepository.save(property);
-            return savedProperty.get();
+            return new PropertyDto(
+                    savedProperty.get().getId(),
+                    savedProperty.get().getE9(),
+                    savedProperty.get().getPropertyAddress(),
+                    savedProperty.get().getConstructionYear(),
+                    savedProperty.get().getPropertyType(),
+                    savedProperty.get().getOwner().getVat(),
+                    savedProperty.get().isDeleted()
+            );
         } catch (Exception e) {
             throw new CustomException("Failed to update property with ID " + id);
         }
     }
-    
+
     /**
      * Updates the E9 identifier of an existing property.
      *
@@ -130,7 +147,6 @@ public class PropertyServiceImpl implements PropertyService {
 //            throw new CustomException("Failed to update property with E9 " + e9);
 //        }
 //    }
-
     /**
      * Updates the address of an existing property.
      *
@@ -240,7 +256,6 @@ public class PropertyServiceImpl implements PropertyService {
 //            return null;
 //        }
 //    }
-
     /**
      * Finds and returns a list of properties associated with the given VAT
      * number.

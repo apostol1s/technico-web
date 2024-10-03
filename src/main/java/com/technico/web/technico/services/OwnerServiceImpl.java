@@ -1,5 +1,6 @@
 package com.technico.web.technico.services;
 
+import com.technico.web.technico.dtos.OwnerDto;
 import com.technico.web.technico.exceptions.CustomException;
 import com.technico.web.technico.models.Owner;
 import com.technico.web.technico.repositories.OwnerRepository;
@@ -18,7 +19,6 @@ public class OwnerServiceImpl implements OwnerService {
     @Inject
     private OwnerRepository ownerRepository;
 
-
     /**
      * Creates a new owner with the given details
      *
@@ -29,11 +29,11 @@ public class OwnerServiceImpl implements OwnerService {
      * @param phoneNumber
      * @param email
      * @param password
-     * @return the new Owner.
+     * @return the new Owner dto.
      * @throws CustomException if any validation fails
      */
     @Override
-    public Owner createOwner(String vat, String name, String surname, String address, String phoneNumber, String email, String password)
+    public OwnerDto createOwner(String vat, String name, String surname, String address, String phoneNumber, String email, String password)
             throws CustomException {
         validateVat(vat);
         validateName(name);
@@ -54,7 +54,18 @@ public class OwnerServiceImpl implements OwnerService {
         owner.setPassword(password);
         owner.setEmail(email);
 
-        return save(owner);
+        Owner savedOwner = save(owner);
+        return new OwnerDto(
+                savedOwner.getId(),
+                savedOwner.getVat(),
+                savedOwner.getName(),
+                savedOwner.getSurname(),
+                savedOwner.getAddress(),
+                savedOwner.getPhoneNumber(),
+                savedOwner.getEmail(),
+                savedOwner.getPassword(),
+                savedOwner.isDeleted()
+        );
     }
 
     /**
@@ -111,13 +122,13 @@ public class OwnerServiceImpl implements OwnerService {
      * @param phoneNumber The new phone number of the Owner.
      * @param email The new email address of the Owner.
      * @param password The new password for the Owner.
-     * @return The updated Owner object.
+     * @return The updated Owner dto object.
      * @throws CustomException If the Owner is deleted, if the phone number, or
      * if any validation fails.
      */
     @Override
     @Transactional
-    public Owner updateOwner(Long id, String address, String phoneNumber, String email, String password)
+    public OwnerDto updateOwner(Long id, String address, String phoneNumber, String email, String password)
             throws CustomException {
         Owner owner = searchOwnerByID(id).get();
         if (owner.isDeleted()) {
@@ -135,7 +146,18 @@ public class OwnerServiceImpl implements OwnerService {
         validatePassword(password);
         owner.setPassword(password);
 
-        return save(owner);
+        Owner savedOwner = save(owner);
+        return new OwnerDto(
+                savedOwner.getId(),
+                savedOwner.getVat(),
+                savedOwner.getName(),
+                savedOwner.getSurname(),
+                savedOwner.getAddress(),
+                savedOwner.getPhoneNumber(),
+                savedOwner.getEmail(),
+                savedOwner.getPassword(),
+                savedOwner.isDeleted()
+        );
     }
 
 //    /**
@@ -243,6 +265,7 @@ public class OwnerServiceImpl implements OwnerService {
                 .orElseThrow(() -> new CustomException("Invalid username or password."));
         return Optional.of(owner);
     }
+
     /**
      * Validates the VAT.
      *

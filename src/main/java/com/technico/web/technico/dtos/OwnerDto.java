@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateOwnerDto {
+public class OwnerDto {
 
+    private Long id;
     private String vat;
     private String name;
     private String surname;
@@ -16,4 +17,5 @@ public class CreateOwnerDto {
     private String phoneNumber;
     private String email;
     private String password;
+    private boolean isDeleted;
 }

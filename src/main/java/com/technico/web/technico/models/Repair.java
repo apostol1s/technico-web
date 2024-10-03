@@ -27,8 +27,7 @@ public class Repair implements Serializable {
     @Column(name = "short_description", length = 100)
     private String shortDescription;
 
-    @PastOrPresent
-//    @NotNull
+
     @Column(name = "submission_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date submissionDate;
@@ -61,12 +60,12 @@ public class Repair implements Serializable {
     @Column(name = "repair_address", length = 50)
     private String repairAddress;
 
-    @FutureOrPresent
+
     @Column(name = "actual_start_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date actualStartDate;
 
-    @FutureOrPresent
+
     @Column(name = "actual_end_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date actualEndDate;

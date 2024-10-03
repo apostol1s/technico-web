@@ -1,5 +1,6 @@
 package com.technico.web.technico.services;
 
+import com.technico.web.technico.dtos.OwnerDto;
 import com.technico.web.technico.exceptions.CustomException;
 import com.technico.web.technico.models.Owner;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.Optional;
 public interface OwnerService {
 
     // Create Owner
-    Owner createOwner(String vat, String name, String surname, String address, String phoneNumber, String email, String password)
+    OwnerDto createOwner(String vat, String name, String surname, String address, String phoneNumber, String email, String password)
             throws CustomException;
 
     // Search Owner
@@ -21,7 +22,7 @@ public interface OwnerService {
     List<Owner> findAllOwners();
 
     // Update Owner
-    Owner updateOwner(Long id, String address, String phoneNumber, String email, String password) throws CustomException;
+    OwnerDto updateOwner(Long id, String address, String phoneNumber, String email, String password) throws CustomException;
 //    void updateOwnerAddress(String vat, String address) throws CustomException;
 //
 //    void updateOwnerEmail(String vat, String email) throws CustomException;

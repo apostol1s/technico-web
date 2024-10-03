@@ -1,5 +1,6 @@
 package com.technico.web.technico.services;
 
+import com.technico.web.technico.dtos.RepairDto;
 import com.technico.web.technico.exceptions.CustomException;
 import com.technico.web.technico.models.Owner;
 import com.technico.web.technico.models.Property;
@@ -13,14 +14,14 @@ import java.util.Optional;
 
 public interface RepairService {
 
-    Repair createRepair(RepairType repairType, String description,
-            Date scheduledStartDate, Date scheduledEndDate, BigDecimal proposedCost, Long id)throws CustomException;
+    RepairDto createRepair(String e9, RepairType repairType, String description,
+            Date scheduledStartDate, Date scheduledEndDate, BigDecimal proposedCost)throws CustomException;
 
-    Repair updateRepairAdmin(Long id, RepairType repairType, Date scheduledEndDate, Date scheduledStartDate,
+    RepairDto updateRepairAdmin(Long id, RepairType repairType, Date scheduledEndDate, Date scheduledStartDate,
             String description, String repairAddress, RepairStatus repairStatus, BigDecimal proposedCost)throws CustomException;
         
 
-    Repair updateRepairOwner(Long id, RepairType repairType, String description, String repairAddress)throws CustomException;
+    RepairDto updateRepairOwner(Long id, RepairType repairType, String description, String repairAddress)throws CustomException;
 
 //    void updateRepairType(Long id, RepairType repairType);
 //    

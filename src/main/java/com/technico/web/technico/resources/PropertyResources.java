@@ -1,7 +1,6 @@
 package com.technico.web.technico.resources;
 
-import com.technico.web.technico.dtos.CreatePropertyDto;
-import com.technico.web.technico.dtos.UpdatePropertyDto;
+import com.technico.web.technico.dtos.PropertyDto;
 import com.technico.web.technico.exceptions.CustomException;
 import com.technico.web.technico.models.Property;
 import com.technico.web.technico.services.PropertyService;
@@ -16,6 +15,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -30,14 +30,13 @@ public class PropertyResources {
      * Creates a new property using the provided property data.
      *
      * @param property A DTO containing property data.
-     * @return The newly created property, or a null if an error
-     * occurs.
+     * @return The newly created propertydto, or a null if an error occurs.
      */
     @Path("create")
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Property saveProperty(CreatePropertyDto property) {
+    public PropertyDto saveProperty(PropertyDto property) {
         try {
             return propertyService.createProperty(
                     property.getE9(),
@@ -56,28 +55,51 @@ public class PropertyResources {
      * Finds a property by its E9 identifier.
      *
      * @param e9 The E9 identifier of the property.
-     * @return The property with the specified E9.
+     * @return The PropertyDto object representing the property with the
+     * specified E9..
      * @throws CustomException If no property is found with the given E9.
      */
     @Path("findByE9/{e9}")
     @GET
     @Produces("application/json")
-    public Property findPropertyByE9(@PathParam("e9") String e9) throws CustomException {
-        return propertyService.findByE9(e9);
+    public PropertyDto findPropertyByE9(@PathParam("e9") String e9) throws CustomException {
+        Property property = propertyService.findByE9(e9);
+        return new PropertyDto(
+                property.getId(),
+                property.getE9(),
+                property.getPropertyAddress(),
+                property.getConstructionYear(),
+                property.getPropertyType(),
+                property.getOwner().getVat(),
+                property.isDeleted()
+        );
     }
 
     /**
      * Finds a list of properties by the owner's VAT.
      *
      * @param vat The VAT number of the property owner.
-     * @return A list of properties associated with the owner's VAT.
+     * @return A list of PropertyDto objects representing the properties
+     * associated with the owner's VAT.
      * @throws CustomException If no properties are found for the given VAT.
      */
     @Path("findByVat/{vat}")
     @GET
     @Produces("application/json")
-    public List<Property> findPropertyByVat(@PathParam("vat") String vat) throws CustomException {
-        return propertyService.findByVAT(vat);
+    public List<PropertyDto> findPropertyByVat(@PathParam("vat") String vat) throws CustomException {
+        List<Property> properties = propertyService.findByVAT(vat);
+        List<PropertyDto> propertiesByVat = properties.stream()
+                .map(property -> new PropertyDto(
+                property.getId(),
+                property.getE9(),
+                property.getPropertyAddress(),
+                property.getConstructionYear(),
+                property.getPropertyType(),
+                property.getOwner().getVat(),
+                property.isDeleted()
+        ))
+                .collect(Collectors.toList());
+        return propertiesByVat;
     }
 
     /**
@@ -85,41 +107,76 @@ public class PropertyResources {
      * properties.
      *
      * @param vat The VAT number of the property owner.
-     * @return A list of non-deleted properties associated with the owner's VAT.
+     * @return A list of PropertyDto objects representing the non-deleted
+     * properties associated with the owner's VAT.
      * @throws CustomException If no non-deleted properties are found for the
      * given VAT.
      */
     @Path("findNonDeletedByVat/{vat}")
     @GET
     @Produces("application/json")
-    public List<Property> findNonDeletedPropertyByVat(@PathParam("vat") String vat) throws CustomException {
-        return propertyService.findByVATExcludeDeleted(vat);
+    public List<PropertyDto> findNonDeletedPropertyByVat(@PathParam("vat") String vat) throws CustomException {
+        List<Property> properties = propertyService.findByVATExcludeDeleted(vat);
+        List<PropertyDto> nonDeletedProperties = properties.stream()
+                .map(property -> new PropertyDto(
+                property.getId(),
+                property.getE9(),
+                property.getPropertyAddress(),
+                property.getConstructionYear(),
+                property.getPropertyType(),
+                property.getOwner().getVat(),
+                property.isDeleted()
+        ))
+                .collect(Collectors.toList());
+        return nonDeletedProperties;
     }
 
     /**
      * Finds a property by its unique ID.
      *
      * @param id The unique identifier of the property.
-     * @return The property with the specified ID.
+     * @return The PropertyDto object representing the property with the
+     * specified ID.
      * @throws CustomException If no property is found with the given ID.
      */
     @Path("findByID/{id}")
     @GET
     @Produces("application/json")
-    public Property findPropertyByID(@PathParam("id") Long id) throws CustomException {
-        return propertyService.findByID(id);
+    public PropertyDto findPropertyByID(@PathParam("id") Long id) throws CustomException {
+        Property property = propertyService.findByID(id);
+        return new PropertyDto(
+                property.getId(),
+                property.getE9(),
+                property.getPropertyAddress(),
+                property.getConstructionYear(),
+                property.getPropertyType(),
+                property.getOwner().getVat(),
+                property.isDeleted()
+        );
     }
 
     /**
      * Retrieves all properties from the system.
      *
-     * @return A list of all properties.
+     * @return A list of PropertyDto objects representing all properties.
      */
     @Path("findAll")
     @GET
     @Produces("application/json")
-    public List<Property> allProperties() {
-        return propertyService.findAllProperties();
+    public List<PropertyDto> allProperties() {
+        List<Property> properties = propertyService.findAllProperties();
+        List<PropertyDto> allProperties = properties.stream()
+                .map(property -> new PropertyDto(
+                property.getId(),
+                property.getE9(),
+                property.getPropertyAddress(),
+                property.getConstructionYear(),
+                property.getPropertyType(),
+                property.getOwner().getVat(),
+                property.isDeleted()
+        ))
+                .collect(Collectors.toList());
+        return allProperties;
     }
 
     /**
@@ -133,12 +190,12 @@ public class PropertyResources {
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Property updateProperty(@PathParam("id") Long id, UpdatePropertyDto property) {
+    public PropertyDto updateProperty(@PathParam("id") Long id, PropertyDto property) {
         try {
             return propertyService.updateProperty(
                     id,
-                    property.getPropertyAddress(),
-                    property.getConstructionYear(),
+                    property.getAddress(),
+                    property.getYear(),
                     property.getPropertyType()
             );
         } catch (CustomException e) {

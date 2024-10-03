@@ -1,7 +1,6 @@
 package com.technico.web.technico.resources;
 
-import com.technico.web.technico.dtos.CreateOwnerDto;
-import com.technico.web.technico.dtos.UpdateOwnerDto;
+import com.technico.web.technico.dtos.OwnerDto;
 import com.technico.web.technico.exceptions.CustomException;
 import com.technico.web.technico.models.Owner;
 import com.technico.web.technico.services.OwnerService;
@@ -16,6 +15,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -29,15 +29,15 @@ public class OwnerResource {
     /**
      * Saves a new owner.
      *
-     * @param owner the owner data transfer object containing the details of the
+     * @param owner the owner dto containing the details of the
      * new owner.
-     * @return the created Owner object.
+     * @return the created Owner dto.
      */
     @Path("create")
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Owner saveOwner(CreateOwnerDto owner) {
+    public OwnerDto saveOwner(OwnerDto owner) {
         try {
             return ownerService.createOwner(
                     owner.getVat(),
@@ -58,65 +58,112 @@ public class OwnerResource {
      * Finds an owner by VAT number.
      *
      * @param vat the VAT number of the owner.
-     * @return the Owner object associated with the given VAT number.
+     * @return the Owner dto object associated with the given VAT number.
      */
     @Path("findByVat/{vat}")
     @GET
     @Produces("application/json")
-    public Owner findOwnerByVat(@PathParam("vat") String vat) {
-        return ownerService.searchOwnerByVat(vat).get();
+    public OwnerDto findOwnerByVat(@PathParam("vat") String vat) {
+        Owner owner = ownerService.searchOwnerByVat(vat).get();
+        return new OwnerDto(
+                owner.getId(),
+                owner.getVat(),
+                owner.getName(),
+                owner.getSurname(),
+                owner.getAddress(),
+                owner.getPhoneNumber(),
+                owner.getEmail(),
+                owner.getPassword(),
+                owner.isDeleted()
+        );
     }
 
     /**
      * Finds an owner by email.
      *
      * @param email the email address of the owner.
-     * @return the Owner object associated with the given email address.
+     * @return the Owner dto object associated with the given email address.
      */
     @Path("findByEmail/{email}")
     @GET
     @Produces("application/json")
-    public Owner findOwnerByEmail(@PathParam("email") String email) {
-        return ownerService.searchOwnerByEmail(email).get();
+    public OwnerDto findOwnerByEmail(@PathParam("email") String email) {
+        Owner owner = ownerService.searchOwnerByEmail(email).get();
+        return new OwnerDto(
+                owner.getId(),
+                owner.getVat(),
+                owner.getName(),
+                owner.getSurname(),
+                owner.getAddress(),
+                owner.getPhoneNumber(),
+                owner.getEmail(),
+                owner.getPassword(),
+                owner.isDeleted()
+        );
     }
 
     /**
      * Finds an owner by ID.
      *
      * @param id the unique ID of the owner.
-     * @return the Owner object associated with the given ID.
+     * @return the Owner dto object associated with the given ID.
      */
     @Path("findByID/{id}")
     @GET
     @Produces("application/json")
-    public Owner findOwnerByID(@PathParam("id") Long id) {
-        return ownerService.searchOwnerByID(id).get();
+    public OwnerDto findOwnerByID(@PathParam("id") Long id) {
+        Owner owner = ownerService.searchOwnerByID(id).get();
+        return new OwnerDto(
+                owner.getId(),
+                owner.getVat(),
+                owner.getName(),
+                owner.getSurname(),
+                owner.getAddress(),
+                owner.getPhoneNumber(),
+                owner.getEmail(),
+                owner.getPassword(),
+                owner.isDeleted()
+        );
     }
 
     /**
      * Retrieves all owners.
      *
-     * @return a list of Owner objects.
+     * @return A list of OwnerDto objects representing all owners.
      */
     @Path("findAll")
     @GET
     @Produces("application/json")
-    public List<Owner> getCustomers() {
-        return ownerService.findAllOwners();
+    public List<OwnerDto> getCustomers() {
+        List<Owner> owners = ownerService.findAllOwners();
+        List<OwnerDto> allOwners = owners.stream()
+                .map(owner -> new OwnerDto(
+                owner.getId(),
+                owner.getVat(),
+                owner.getName(),
+                owner.getSurname(),
+                owner.getAddress(),
+                owner.getPhoneNumber(),
+                owner.getEmail(),
+                owner.getPassword(),
+                owner.isDeleted()
+        ))
+                .collect(Collectors.toList());
+        return allOwners;
     }
 
     /**
      * Updates an existing owner.
      *
      * @param id the ID of the owner to update.
-     * @param owner the updated owner data transfer object.
-     * @return the updated Owner object.
+     * @param owner the updated owner dto.
+     * @return the updated Owner dto.
      */
     @Path("update/{id}")
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Owner updateOwner(@PathParam("id") Long id, UpdateOwnerDto owner) {
+    public OwnerDto updateOwner(@PathParam("id") Long id, OwnerDto owner) {
         try {
             return ownerService.updateOwner(
                     id,
@@ -161,10 +208,10 @@ public class OwnerResource {
         }
         return false;
     }
-    
+
     /**
      * Endpoint to authenticate an owner based on email and password.
-     * 
+     *
      * @param email owner's email
      * @param password owner's password
      * @return the verified owner.
